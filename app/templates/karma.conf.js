@@ -1,7 +1,7 @@
 // Karma configuration
 // Generated on Thu Aug 21 2014 10:24:39 GMT+0200 (CEST)
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -10,29 +10,14 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['mocha', 'chai-jquery', 'jquery-1.8.3', 'sinon-chai'],
+    frameworks: ['jasmine'],
 
     plugins: [
-      'karma-mocha',
-      'karma-chai',
-      'karma-sinon-chai',
+      'karma-jasmine',
       'karma-chrome-launcher',
       'karma-phantomjs-launcher',
-      'karma-jquery',
-      'karma-chai-jquery'
+      'karma-spec-reporter'
     ],
-
-    // list of files / patterns to load in the browser
-    files: [
-      'bower/angular/angular.js'<% if (config.includeAngularModuleCookies) { %>,
-      'bower/angular-cookies/angular-cookies.js'<% } %><% if (config.includeAngularModuleResource) { %>,
-      'bower/angular-resource/angular-resource.js'<% } %><% if (config.includeAngularModuleSanitize) { %>,
-      'bower/angular-sanitize/angular-sanitize.js'<% } %>,
-      'bower/angular-mocks/angular-mocks.js',
-      'dist/<%= config.libraryName.dasherized %>.js',
-      'test/unit/**/*.js'
-    ],
-
 
     // list of files to exclude
     exclude: [
@@ -41,14 +26,13 @@ module.exports = function(config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-    },
+    preprocessors: {},
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress'],
+    reporters: ['progress', 'spec'],
 
 
     // web server port

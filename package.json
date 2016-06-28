@@ -4,12 +4,16 @@
   "description": "Yeoman generator to create an AngularJS component library",
   "license": "MIT",
   "main": "app/index.js",
-  "repository": "jvandemo/generator-angularjs-library",
-  "author": {
+  "repository": "johnwebbcole/generator-angularjs-library",
+  "author": [{
     "name": "Jurgen Van de Moere",
     "email": "jurgen@webberid.com",
     "url": "https://github.com/jvandemo"
-  },
+  }, {
+    "name": "John Cole",
+    "email": "johnwebbcole@gmail.com",
+    "url": "https://github.com/johnwebbcole"
+  }],
   "engines": {
     "node": ">=0.10.0"
   },

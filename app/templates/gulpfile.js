@@ -1,12 +1,17 @@
 var gulp = require('gulp');
-var karma = require('karma').server;
+var fs = require('fs');
+var Server = require('karma').Server;
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var path = require('path');
 var plumber = require('gulp-plumber');
 var runSequence = require('run-sequence');
-var jshint = require('gulp-jshint');
+var eslint = require('gulp-eslint');
+var ngAnnotate = require('gulp-ng-annotate');
+var bump = require('gulp-bump');
+var git = require('gulp-git');
+
 
 /**
  * File patterns
@@ -36,11 +41,12 @@ var lintFiles = [
   'karma-*.conf.js'
 ].concat(sourceFiles);
 
-gulp.task('build', function() {
+gulp.task('build', function () {
   gulp.src(sourceFiles)
     .pipe(plumber())
     .pipe(concat('<%= config.libraryName.dasherized %>.js'))
     .pipe(gulp.dest('./dist/'))
+    .pipe(ngAnnotate())
     .pipe(uglify())
     .pipe(rename('<%= config.libraryName.dasherized %>.min.js'))
     .pipe(gulp.dest('./dist'));
@@ -50,7 +56,7 @@ gulp.task('build', function() {
  * Process
  */
 gulp.task('process-all', function (done) {
-  runSequence('jshint', 'test-src', 'build', done);
+  runSequence('eslint', 'test-src', 'build', done);
 });
 
 /**
@@ -62,18 +68,19 @@ gulp.task('watch', function () {
   gulp.watch(sourceFiles, ['process-all']);
 
   // watch test files and re-run unit tests when changed
-  gulp.watch(path.join(testDirectory, '/**/*.js'), ['test-src']);
+  gulp.watch(path.join(testDirectory, '/**/*.js'), ['test']);
 });
 
+
 /**
- * Validate source JavaScript
+ * Validate source with eslint
  */
-gulp.task('jshint', function () {
+gulp.task('eslint', function () {
   return gulp.src(lintFiles)
     .pipe(plumber())
-    .pipe(jshint())
-    .pipe(jshint.reporter('jshint-stylish'))
-    .pipe(jshint.reporter('fail'));
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
 /**
@@ -86,25 +93,61 @@ gulp.task('test-src', function (done) {
   }, done);
 });
 
-/**
- * Run test once and exit
- */
-gulp.task('test-dist-concatenated', function (done) {
-  karma.start({
-    configFile: __dirname + '/karma-dist-concatenated.conf.js',
-    singleRun: true
-  }, done);
+gulp.task('test', function (done) {
+  var files = {
+    src: [
+      'src/**/*.module.js',
+      'src/**/*.js'],
+    concatenated: [
+      'dist/<%= config.libraryName.dasherized %>.js'
+    ],
+    minified: [
+      'dist/<%= config.libraryName.dasherized %>.min.js'
+    ]
+  };
+
+  var arg = process.argv[3] ? process.argv[3].substr(2) : 'src';
+  var testfiles = files[arg];
+  if (!testfiles) {
+    console.error('Wrong parameter [%s], availables : --src, --concatenated, --minified', arg); // eslint-disable-line no-console
+    return done(true);
+  }
+
+  new Server({
+    configFile: __dirname + '/karma.conf.js',
+    singleRun: true,
+    files: require('main-bower-files')({
+      checkExistence: true,
+      includeDev: false,
+      debugging: false,
+      filter: ['**/*.js', '**/*.css']
+    }).concat([
+      'bower/angular-mocks/angular-mocks.js'],
+      testfiles, ['test/unit/**/*.js'])
+  }, done).start();
 });
 
-/**
- * Run test once and exit
- */
-gulp.task('test-dist-minified', function (done) {
-  karma.start({
-    configFile: __dirname + '/karma-dist-minified.conf.js',
-    singleRun: true
-  }, done);
+
+gulp.task('version', function () {
+  return gulp.src(['./package.json', './bower.json'])
+    .pipe(bump({
+      type: process.argv[3] ? process.argv[3].substr(2) : 'patch'
+    }))
+    .pipe(gulp.dest('./'));
 });
+
+
+gulp.task('bump', ['version'], function () {
+  fs.readFile('./package.json', function (err, data) {
+    if (err) {
+      return;
+    }
+    return gulp.src(['./package.json', './bower.json'])
+      .pipe(git.add())
+      .pipe(git.commit('chore(core): bump to ' + JSON.parse(data).version));
+  });
+});
+
 
 gulp.task('default', function () {
   runSequence('process-all', 'watch');
