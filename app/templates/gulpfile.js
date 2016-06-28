@@ -56,7 +56,7 @@ gulp.task('build', function () {
  * Process
  */
 gulp.task('process-all', function (done) {
-  runSequence('eslint', 'test-src', 'build', done);
+  runSequence('eslint', 'test', 'build', done);
 });
 
 /**
@@ -86,13 +86,6 @@ gulp.task('eslint', function () {
 /**
  * Run test once and exit
  */
-gulp.task('test-src', function (done) {
-  karma.start({
-    configFile: __dirname + '/karma-src.conf.js',
-    singleRun: true
-  }, done);
-});
-
 gulp.task('test', function (done) {
   var files = {
     src: [
@@ -127,7 +120,6 @@ gulp.task('test', function (done) {
   }, done).start();
 });
 
-
 gulp.task('version', function () {
   return gulp.src(['./package.json', './bower.json'])
     .pipe(bump({
@@ -135,7 +127,6 @@ gulp.task('version', function () {
     }))
     .pipe(gulp.dest('./'));
 });
-
 
 gulp.task('bump', ['version'], function () {
   fs.readFile('./package.json', function (err, data) {
@@ -147,7 +138,6 @@ gulp.task('bump', ['version'], function () {
       .pipe(git.commit('chore(core): bump to ' + JSON.parse(data).version));
   });
 });
-
 
 gulp.task('default', function () {
   runSequence('process-all', 'watch');

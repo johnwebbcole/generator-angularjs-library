@@ -10,7 +10,10 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
     this.pkg = require('../package.json');
 
     // Try to determine the name
-    this.argument('appname', { type: String, required: false });
+    this.argument('appname', {
+      type: String,
+      required: false
+    });
     this.appname = this.appname || path.basename(process.cwd());
   },
 
@@ -196,9 +199,13 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
         this.mkdir(this.props.libraryUnitTestDirectory + '/services');
       }
 
-      this.template('src/library/library.module.js', this.props.librarySrcDirectory + '/' + this.props.libraryName.camelized + '.module.js', {config: this.props});
+      this.template('src/library/library.module.js', this.props.librarySrcDirectory + '/' + this.props.libraryName.camelized + '.module.js', {
+        config: this.props
+      });
 
-      this.template('test/unit/library/librarySpec.js', this.props.libraryUnitTestDirectory + '/' + this.props.libraryName.camelized + 'Spec.js', {config: this.props});
+      this.template('test/unit/library/librarySpec.js', this.props.libraryUnitTestDirectory + '/' + this.props.libraryName.camelized + 'Spec.js', {
+        config: this.props
+      });
 
     },
 
@@ -206,67 +213,68 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
      * Create Gulp configuration
      */
     createGulpfile: function createGulpfile() {
-      this.template('gulpfile.js', './gulpfile.js', {config: this.props});
+      this.template('gulpfile.js', './gulpfile.js', {
+        config: this.props
+      });
     },
 
     /**
      * Create Package Json
      */
     createPackageJson: function createPackageJson() {
-      this.template('_package.json', './package.json', {config: this.props});
+      this.template('_package.json', './package.json', {
+        config: this.props
+      });
     },
 
     /**
      * Create Bower files
      */
     createBowerFiles: function createBowerFiles() {
-      this.template('_bower.json', './bower.json', {config: this.props});
+      this.template('_bower.json', './bower.json', {
+        config: this.props
+      });
       this.copy('bowerrc', '.bowerrc');
     },
 
     /**
      * Create Karma unit test configuration
      */
-    createKarmaSrcConfig: function createKarmaConfig() {
-      this.template('karma-src.conf.js', 'karma-src.conf.js', {config: this.props});
-    },
-
-    /**
-     * Create Karma unit test configuration
-     */
-    createKarmaDistConcatenatedConfig: function createKarmaDistConcatenatedConfig() {
-      this.template('karma-dist-concatenated.conf.js', 'karma-dist-concatenated.conf.js', {config: this.props});
-    },
-
-    /**
-     * Create Karma unit test configuration
-     */
-    createKarmaDistMinifiedConfig: function createKarmaDistMinifiedConfig() {
-      this.template('karma-dist-minified.conf.js', 'karma-dist-minified.conf.js', {config: this.props});
+    createKarmaConfig: function createKarmaConfig() {
+      this.template('karma.conf.js', 'karma.conf.js', {
+        config: this.props
+      });
     },
 
     /**
      * Create README.md
      */
     createReadmeMd: function createReadmeMd() {
-      this.template('README.md', 'README.md', {config: this.props});
+      this.template('README.md', 'README.md', {
+        config: this.props
+      });
     },
 
     /**
      * Create LICENSE.txt
      */
     createLicenseTxt: function createLicenseTxt() {
-      this.template('LICENSE', 'LICENSE', {config: this.props});
+      this.template('LICENSE', 'LICENSE', {
+        config: this.props
+      });
     },
 
     createProjectFiles: function createProjectFiles() {
       this.copy('editorconfig', '.editorconfig');
-      this.copy('jshintrc', '.jshintrc');
+      this.copy('_eslintrc.js', '.eslintrc.js');
+      this.copy('src/_eslintrc.js', 'src/.eslintrc.js');
+      this.copy('test/_eslintrc.js', 'test/.eslintrc.js');
+      this.copy('_eslintignore', '.eslintignore');
       this.copy('gitignore', '.gitignore');
       this.copy('travis.yml', '.travis.yml');
     }
 
-},
+  },
 
   end: function () {
     this.installDependencies();
