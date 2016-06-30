@@ -7,7 +7,7 @@ var chalk = require('chalk');
 
 var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
   initializing: function () {
-    this.pkg = require('../package.json');
+    this.pkg = require('../../package.json');
 
     // Try to determine the name
     this.argument('appname', {
@@ -30,11 +30,7 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
       {
         type: 'input',
         name: 'authorName',
-        message: chalk.yellow('\n\n********************************************************************************\n' + 'Before we get started, let me verify your personal details:\n********************************************************************************\n') + '\n' +
-          'Don\'t worry, I wont stalk you, send you spam or look you up on the internet.' + '\n\n' +
-          'I only use your personal details to automatically populate the author fields in\n' +
-          'bower.json, package.json and to mention you as the owner in the LICENSE.txt file.' + '\n\n' +
-          'Your full name:',
+        message: chalk.yellow('\n\n********************************************************************************\n' + 'Before we get started, let me verify your personal details:\n********************************************************************************\n'),
         validate: function (input) {
           if (/.+/.test(input)) {
             return true;
@@ -71,42 +67,6 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
           return 'Please enter a library name';
         },
         default: this.appname
-      },
-      {
-        type: 'confirm',
-        name: 'includeModuleDirectives',
-        message: 'Would you like to include a directives module?',
-        default: true
-      },
-      {
-        type: 'confirm',
-        name: 'includeModuleFilters',
-        message: 'Would you like to include a filters module?',
-        default: true
-      },
-      {
-        type: 'confirm',
-        name: 'includeModuleServices',
-        message: 'Would you like to include a services module?',
-        default: true
-      },
-      {
-        type: 'confirm',
-        name: 'includeAngularModuleResource',
-        message: 'Would you like to include the angular-resource module?',
-        default: true
-      },
-      {
-        type: 'confirm',
-        name: 'includeAngularModuleCookies',
-        message: 'Would you like to include the angular-cookies module?',
-        default: true
-      },
-      {
-        type: 'confirm',
-        name: 'includeAngularModuleSanitize',
-        message: 'Would you like to include the angular-sanitize module?',
-        default: true
       }
     ];
 
@@ -139,17 +99,12 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
           // Array of parts => [ 'project', 'angular', 'library' ]
           parts: this._.slugify(props.libraryName).split('-')
         },
-        includeModuleDirectives: props.includeModuleDirectives,
-        includeModuleFilters: props.includeModuleFilters,
-        includeModuleServices: props.includeModuleServices,
         includeAngularModuleResource: props.includeAngularModuleResource,
         includeAngularModuleCookies: props.includeAngularModuleCookies,
         includeAngularModuleSanitize: props.includeAngularModuleSanitize
       };
 
-      this.props.librarySrcDirectory = 'src' + '/' + this.props.libraryName.dasherized;
-      this.props.libraryUnitTestDirectory = 'test' + '/unit/' + this.props.libraryName.dasherized;
-      this.props.libraryUnitE2eDirectory = 'test' + '/e2e/' + this.props.libraryName.dasherized;
+
 
       this.config.set('props', this.props);
 
@@ -178,32 +133,12 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
     createLibraryFiles: function createLibraryFiles() {
 
       this.mkdir('src');
-      this.mkdir('test');
 
-      this.mkdir(this.props.librarySrcDirectory);
-      this.mkdir(this.props.libraryUnitTestDirectory);
-      this.mkdir(this.props.libraryUnitE2eDirectory);
-
-      if (this.props.includeModuleDirectives) {
-        this.mkdir(this.props.librarySrcDirectory + '/directives');
-        this.mkdir(this.props.libraryUnitTestDirectory + '/directives');
-      }
-
-      if (this.props.includeModuleFilters) {
-        this.mkdir(this.props.librarySrcDirectory + '/filters');
-        this.mkdir(this.props.libraryUnitTestDirectory + '/filters');
-      }
-
-      if (this.props.includeModuleServices) {
-        this.mkdir(this.props.librarySrcDirectory + '/services');
-        this.mkdir(this.props.libraryUnitTestDirectory + '/services');
-      }
-
-      this.template('src/library/library.module.js', this.props.librarySrcDirectory + '/' + this.props.libraryName.camelized + '.module.js', {
+      this.template('src/library.module.js', this.props.libraryName.camelized + '.module.js', {
         config: this.props
       });
 
-      this.template('test/unit/library/librarySpec.js', this.props.libraryUnitTestDirectory + '/' + this.props.libraryName.camelized + 'Spec.js', {
+      this.template('src/library.module.spec.js', this.props.libraryName.camelized + '.module.spec.js', {
         config: this.props
       });
 
@@ -231,7 +166,7 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
      * Create Bower files
      */
     createBowerFiles: function createBowerFiles() {
-      this.template('_bower.json', './bower.json', {
+      this.template('_bower.json.ejs', './bower.json', {
         config: this.props
       });
       this.copy('bowerrc', '.bowerrc');
@@ -268,7 +203,6 @@ var AngularjsLibraryGenerator = yeoman.generators.Base.extend({
       this.copy('editorconfig', '.editorconfig');
       this.copy('_eslintrc.js', '.eslintrc.js');
       this.copy('src/_eslintrc.js', 'src/.eslintrc.js');
-      this.copy('test/_eslintrc.js', 'test/.eslintrc.js');
       this.copy('_eslintignore', '.eslintignore');
       this.copy('gitignore', '.gitignore');
       this.copy('travis.yml', '.travis.yml');

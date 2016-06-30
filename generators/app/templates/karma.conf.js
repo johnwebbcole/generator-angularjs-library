@@ -16,7 +16,8 @@ module.exports = function (config) {
       'karma-jasmine',
       'karma-chrome-launcher',
       'karma-phantomjs-launcher',
-      'karma-spec-reporter'
+      'karma-spec-reporter',
+      'karma-coverage'
     ],
 
     // list of files to exclude
@@ -26,14 +27,36 @@ module.exports = function (config) {
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {},
+    preprocessors: {
+      // source files, that you wanna generate coverage for
+      // do not include tests or libraries
+      // (these files will be instrumented by Istanbul)
+      'src/**/!(.spec).js': ['coverage']
+    },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'spec'],
+    reporters: ['progress', 'spec', 'coverage'],
 
+    coverageReporter: {
+      // specify a common output directory
+      dir: 'coverage',
+      reporters: [
+            // reporters not supporting the `file` property
+        {
+          type: 'html',
+          subdir: 'report-html'
+        },
+        {
+          type: 'text'
+        },
+        {
+          type: 'text-summary'
+        }
+      ]
+    },
 
     // web server port
     port: 9876,

@@ -4,14 +4,14 @@ var Server = require('karma').Server;
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
-var path = require('path');
+var path = require('canonical-path');
 var plumber = require('gulp-plumber');
 var runSequence = require('run-sequence');
 var eslint = require('gulp-eslint');
 var ngAnnotate = require('gulp-ng-annotate');
 var bump = require('gulp-bump');
 var git = require('gulp-git');
-
+var Dgeni = require('dgeni');
 
 /**
  * File patterns
@@ -137,6 +137,27 @@ gulp.task('bump', ['version'], function () {
       .pipe(git.add())
       .pipe(git.commit('chore(core): bump to ' + JSON.parse(data).version));
   });
+});
+
+gulp.task('docs', function () {
+  var dgeni = new Dgeni([
+    new Dgeni.Package('sl-map', [
+      require('dgeni-markdown'),
+      require('dgeni-packages/jsdoc')
+    ])
+    .config(function (readFilesProcessor, writeFilesProcessor) {
+      readFilesProcessor.basePath = path.resolve(__dirname);
+      readFilesProcessor.sourceFiles = [
+        {
+          // Process all js files in `src` and its subfolders ...
+          include: 'src/**/*.js',
+          basePath: 'src'
+        }
+      ];
+      writeFilesProcessor.outputFolder = 'docs';
+    })
+  ]);
+  return dgeni.generate();
 });
 
 gulp.task('default', function () {
